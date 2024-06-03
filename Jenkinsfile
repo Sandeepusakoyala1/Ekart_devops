@@ -45,9 +45,9 @@ pipeline {
             steps {
                 // Run SonarQube scanner
                 withSonarQubeEnv('sonar-scanner') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectKey=EKART \
+                    sh """${SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=EKART \
                     -Dsonar.projectName=EKART \
-                    -Dsonar.java.binaries=. '''
+                    -Dsonar.java.binaries=. """
                 }
             }
         }
@@ -75,41 +75,48 @@ pipeline {
                 }
             }
         }
+        
         stage('Build and tag docker Image') {
             steps {
-                scripts {
+                // Corrected 'scripts' to 'steps'
+                steps {
                     // This step should not normally be used in your script. Consult the inline help for details.
                     withDockerRegistry(credentialsId: 'dockercreds', url: 'https://hub.docker.com') {
-                        sh "dcoker build -t sandeepusakoyalaa/ekart:latest -f docker/Dockerfile ."
-                        }
+                        sh "docker build -t sandeepusakoyalaa/ekart:latest -f docker/Dockerfile ."
+                    }
                 }
             }
         }
-            stage('Trivy Scan') {
+        
+        stage('Trivy Scan') {
+            steps {
+                // Corrected 'sh' to 'steps'
                 steps {
                     sh "trivy image sandeepusakoyalaa/ekart:latest > trivy-report.txt"
                 }
-                }
             }
-            stage('Push the docker image to docker hub') {
+        }
+        
+        stage('Push the docker image to docker hub') {
+            steps {
+                // Corrected 'scripts' to 'steps'
                 steps {
-                scripts {
                     // This step should not normally be used in your script. Consult the inline help for details.
-                   withDockerRegistry(credentialsId: 'dockercreds', url: 'https://hub.docker.com') {
-                    sh "dcoker push sandeepusakoyalaa/ekart:latest"
-                        }
+                    withDockerRegistry(credentialsId: 'dockercreds', url: 'https://hub.docker.com') {
+                        sh "docker push sandeepusakoyalaa/ekart:latest"
+                    }
                 }
             }
         }
-            }
-             stage('Kubernetes deploy') {
-                steps {
-                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'K8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://172.31.38.241:6443') {
+        
+        stage('Kubernetes deploy') {
+            steps {
+                // Corrected 'withKubeConfig' parameter names and removed extra indentation
+                withKubeConfig(credentialsId: 'K8-token', serverUrl: 'https://172.31.38.241:6443', namespace: 'webapps') {
                     sh "kubectl apply -f deploymentservice.yml -n webapps"
                     sh "kubectl get svc -n webapps"
-                    }
-                    
+                }
+            }
         }
+    }
 }
-            
-
