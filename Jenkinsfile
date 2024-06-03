@@ -79,7 +79,7 @@ pipeline {
             steps {
                 scripts {
                     // This step should not normally be used in your script. Consult the inline help for details.
-                    withDockerRegistry(credentialsId: 'dockercreds', toolName: 'Docker', url: 'https://hub.docker.com') {
+                    withDockerRegistry(credentialsId: 'dockercreds', url: 'https://hub.docker.com') {
                         sh "dcoker build -t sandeepusakoyalaa/ekart:latest -f docker/Dockerfile ."
                         }
                 }
@@ -95,7 +95,7 @@ pipeline {
                 steps {
                 scripts {
                     // This step should not normally be used in your script. Consult the inline help for details.
-                   withDockerRegistry(credentialsId: 'dockercreds', toolName: 'Docker', url: 'https://hub.docker.com') {
+                   withDockerRegistry(credentialsId: 'dockercreds', url: 'https://hub.docker.com') {
                     sh "dcoker push sandeepusakoyalaa/ekart:latest"
                         }
                 }
